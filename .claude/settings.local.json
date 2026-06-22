@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(flutter *)",
+      "PowerShell(Set-Location \"C:\\\\Users\\\\user\\\\Documents\\\\projek_BMN\\\\website-bmn\"; Start-Process powershell -ArgumentList \"-Command\", \"php artisan serve --host=0.0.0.0 --port=8000\" -WindowStyle Minimized; Write-Host \"Laravel server starting on http://localhost:8000\")",
+      "PowerShell(Start-Process powershell -ArgumentList \"-Command\", \"Set-Location 'C:\\\\Users\\\\user\\\\Documents\\\\projek_BMN\\\\website-bmn'; php artisan serve --host=0.0.0.0 --port=8000\" -WindowStyle Minimized; Write-Host \"Laravel started\")",
+      "Bash(curl -s http://localhost:8000/api/barang/scan/BMN-TEST)",
+      "Bash(php artisan *)",
+      "Bash(curl -s http://localhost:8000/admin)",
+      "Bash(curl -s -X POST http://localhost:8000/admin/login -H 'Content-Type: application/x-www-form-urlencoded' -d 'email=superadmin@bmn.go.id&password=password' -c /tmp/cookies.txt -w '\\\\nHTTP Status: %{http_code}\\\\nRedirect: %{redirect_url}')",
+      "Bash(curl -s -X POST http://localhost:8000/admin/login -H 'Content-Type: application/x-www-form-urlencoded' -d 'email=superadmin@bmn.go.id&password=password' -L -w '\\\\nHTTP Status: %{http_code}')",
+      "Bash(curl *)",
+      "Bash(taskkill //F //IM php.exe)",
+      "Bash(sed -i 's/heroicon-o-archive/heroicon-o-folder/g' Resources/*.php Resources/**/*.php)",
+      "Bash(sed -i 's/heroicon-o-building-library/heroicon-o-building-office/g' Resources/*.php Resources/**/*.php)",
+      "Bash(sed -i 's/heroicon-o-building-office-2/heroicon-o-building-office/g' Resources/*.php Resources/**/*.php)",
+      "Bash(sed -i 's/heroicon-o-arrow-up-on-square-stack/heroicon-o-arrow-up-tray/g' Resources/*.php Resources/**/*.php)",
+      "Bash(sed -i 's/heroicon-o-arrow-down-on-square-stack/heroicon-o-arrow-down-tray/g' Resources/*.php Resources/**/*.php)",
+      "Bash(Start-Sleep -Seconds 3)",
+      "Bash(Get-Content \"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-user-Documents-projek-BMN\\\\0df3982c-b34e-4a1e-ba44-32bba0ba6a6a\\\\tasks\\\\bdp1t8if4.output\")",
+      "Bash(composer show *)"
+    ]
+  },
+  "disabledMcpjsonServers": [
+    "filesystem",
+    "flutter-docs",
+    "dart-docs",
+    "pub-dev",
+    "brave-search",
+    "fetch"
+  ]
+}
