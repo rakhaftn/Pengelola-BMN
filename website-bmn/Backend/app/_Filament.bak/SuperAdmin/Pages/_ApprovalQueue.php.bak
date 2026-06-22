@@ -1,0 +1,149 @@
+<?php
+
+namespace App\Filament\SuperAdmin\Pages;
+
+use App\Models\Peminjaman;
+use Filament\Pages\Page;
+use Filament\Tables;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+
+class ApprovalQueue extends Page implements Tables\Contracts\HasTable
+{
+    use Tables\Concerns\UsesTables;
+
+    protected static string $view = 'filament.super-admin.pages.approval-queue';
+
+    protected static ?string $title = 'Antrian Persetujuan';
+
+    protected static ?string $navigationLabel = 'Antrian Persetujuan';
+
+    protected static ?string $navigationIcon = 'heroicon-o-document-check';
+
+    protected static string $navigationGroup = 'Peminjaman';
+
+    protected static ?int $navigationSort = 1;
+
+    public function getTable(): \Filament\Tables\Table
+    {
+        return \Filament\Tables\Table::make()
+            ->query(Peminjaman::with(['user', 'barang']))
+            ->defaultSort('created_at', 'desc')
+            ->columns([
+                TextColumn::make('kode')
+                    ->label('Kode Peminjaman')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('user.name')
+                    ->label('Peminjam')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('barang.nama')
+                    ->label('Barang')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('jumlah')
+                    ->label('Jumlah')
+                    ->sortable(),
+                TextColumn::make('tanggal_pinjam')
+                    ->label('Tgl Pinjam')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                TextColumn::make('tanggal_kembali')
+                    ->label('Tgl Kembali')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                BadgeColumn::make('status')
+                    ->label('Status')
+                    ->colors([
+                        'warning' => 'pending',
+                        'success' => 'approved',
+                        'danger' => 'rejected',
+                        'info' => 'on_loan',
+                        'secondary' => 'returned',
+                    ])
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Diajukan')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
+            ])
+            ->filters([
+                SelectFilter::make('status')
+                    ->options([
+                        'pending' => 'Menunggu',
+                        'approved' => 'Disetujui',
+                        'rejected' => 'Ditolak',
+                        'on_loan' => 'Dipinjam',
+                        'returned' => 'Dikembalikan',
+                    ]),
+            ])
+            ->actions([
+                \Filament\Tables\Actions\Action::make('approve')
+                    ->label('Setuju')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn (Peminjaman $record) => $record->status === 'pending')
+                    ->action(function (Peminjaman $record) {
+                        $record->update([
+                            'status' => 'approved',
+                            'approved_by' => auth()->id(),
+                            'approved_at' => now(),
+                        ]);
+                        // Generate signed document
+                    }),
+                \Filament\Tables\Actions\Action::make('reject')
+                    ->label('Tolak')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn (Peminjaman $record) => $record->status === 'pending')
+                    ->action(function (Peminjaman $record) {
+                        $record->update([
+                            'status' => 'rejected',
+                            'rejected_by' => auth()->id(),
+                            'rejected_at' => now(),
+                        ]);
+                    }),
+                \Filament\Tables\Actions\Action::make('view')
+                    ->label('Detail')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (Peminjaman $record) => route('filament.super-admin.resources.peminjaman-manual.view', $record)),
+            ])
+            ->bulkActions([
+                \Filament\Tables\Actions\BulkActionGroup::make([
+                    \Filament\Tables\Actions\Action::make('approve_selected')
+                        ->label('Setujui Terpilih')
+                        ->icon('heroicon-o-check')
+                        ->color('success')
+                        ->action(function (\Illuminate\Support\Collection $records) {
+                            foreach ($records as $record) {
+                                if ($record->status === 'pending') {
+                                    $record->update([
+                                        'status' => 'approved',
+                                        'approved_by' => auth()->id(),
+                                        'approved_at' => now(),
+                                    ]);
+                                }
+                            }
+                        }),
+                    \Filament\Tables\Actions\Action::make('reject_selected')
+                        ->label('Tolak Terpilih')
+                        ->icon('heroicon-o-x')
+                        ->color('danger')
+                        ->action(function (\Illuminate\Support\Collection $records) {
+                            foreach ($records as $record) {
+                                if ($record->status === 'pending') {
+                                    $record->update([
+                                        'status' => 'rejected',
+                                        'rejected_by' => auth()->id(),
+                                        'rejected_at' => now(),
+                                    ]);
+                                }
+                            }
+                        }),
+                ]),
+            ]);
+    }
+}
